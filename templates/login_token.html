@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Purey Roman">
+    <title>Журнал передачи</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='img/favicon.ico') }}"/>
+    <link href="{{ url_for('static',filename='css/bootstrap.min.css') }}" rel="stylesheet" />
+    <link href="{{ url_for('static',filename='css/custom.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static',filename='bootstrap-icons-1.9.1/bootstrap-icons.css') }}">
+    <link href="{{ url_for('static',filename='css/login.css') }}" rel="stylesheet">
+    <script type="text/javascript" src="{{ url_for('static',filename='js/bootstrap.bundle.js') }}"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="container">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <div class="form-signin text-center">
+                <form action="{{ url_for('users.auth_token_login') }}" method="POST">
+                    {{ login_form.csrf_token }}
+                    <img class="mb-4" src="{{ url_for('static',filename='img/logo-full.png') }}" alt="" width='100%'>
+                    <h3 class="h3 mb-3 fw-normal" style="margin-bottom: 30px !important;">Журнал передачи</h3>
+                    <p class="mt-5 mb-3 text-muted">Отсканируйте токен из Вашего личного кабинета:</p>
+                    <div class="form-floating">
+                        {{ login_form.token(placeholder='Токен', class_='form-control') }}
+                        <label for="token_string">Токен</label>
+                    </div>
+                    <div class="checkbox mb-3">
+                        {{ login_form.remember(class_="form-check-input") }}
+                        {{ login_form.remember.label(class_="form-check-label") }}
+                    </div>
+                    <div class="row">
+                        <div class="col-10"><button class="w-100 btn btn-lg btn-primary" type="submit"><i class="bi bi-qr-code-scan"></i>  Войти</button></div>
+                        <div class="col-2"><a class="btn btn-warning btn-lg" title="Войти с помощью имени и пароля" href="{{ url_for('users.auth_password_login') }}" role="button" style="margin-left: -7px;"><i class="bi bi-person-bounding-box"></i></a></div>
+                    </div>
+                </form>
+                <p class="mt-5 mb-3 text-muted">Группа компаний «Зеленая Долина», 2022</p>
+            </div>
+        </div>
+    </body>
+</html>
+

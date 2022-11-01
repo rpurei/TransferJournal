@@ -1,0 +1,50 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+    padding-bottom: 100px;
+}
+
+footer .container {
+  width: auto;
+  max-width: 680px;
+  padding: 0 15px;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 60px;
+}
+
+.page-wrap {
+    min-height: 85vh;
+}
+
+.thead {
+    background-color: #b8d9f2;
+}
+
+.sr-only {
+    display: none;
+}
+
+.navbar-brand {
+    background: no-repeat url("../img/logo-full.png");
+    background-size: 100% auto;
+    background-position: center;
+    padding: 0;
+    width: 250px;
+    height: 50px;
+    margin: 0 auto 10px;
+    flex-grow: unset;
+    display: block;
+}
+
+.nav-item {
+    min-width: 160px;
+    text-align: center;
+}
