@@ -80,15 +80,20 @@ def docs_directum_processor(doc_qr_code, user_name, operation_id):
     print(get_doc_by_qr_uri + f"(docQR='{doc_qr_code}')")
     if response_directum_get_qr.status_code == 200:
         get_qr_json = response_directum_get_qr.json()
-        get_qr_value = get_qr_json['value']
-        get_qr_dict = json.loads(get_qr_value)
-        doc_content = DocumentContent(doc_qr_code,
-                                      get_qr_dict['name'],
-                                      get_qr_dict['id'])
-        db_main.session.add(doc_content)
-        db_main.session.commit()
+        get_qr_value = dict(get_qr_json).get('value')
+        if len(get_qr_value) > 0:
+            get_qr_dict = json.loads(get_qr_value)
+            doc_content = DocumentContent(doc_qr_code,
+                                          get_qr_dict['name'],
+                                          get_qr_dict['id'])
+            db_main.session.add(doc_content)
+            db_main.session.commit()
+        else:
+            error_message = f'Requested QR: {doc_qr_code} not founded in Directum'
+            logger_output(error_message, DEBUG, 'error')
+            abort(404, error_message)
     elif response_directum_get_qr.status_code == 404:
-        error_message = f'Документ с кодом: {response_directum_get_qr.status_code} не найден'
+        error_message = f'Error 404 processing request to API URL: {get_doc_by_qr_uri}(docQR="{doc_qr_code}")'
         logger_output(error_message, DEBUG, 'error')
         abort(404, error_message)
     else:
