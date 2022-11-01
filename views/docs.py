@@ -76,40 +76,44 @@ def docs_operation_processor(request_data, operation_message):
 
 
 def docs_directum_processor(doc_qr_code, user_name, operation_id):
-    response_directum_get_qr = requests.get(get_doc_by_qr_uri + f"(docQR='{doc_qr_code}')", headers=directum_headers)
-    print(get_doc_by_qr_uri + f"(docQR='{doc_qr_code}')")
-    if response_directum_get_qr.status_code == 200:
-        get_qr_json = response_directum_get_qr.json()
-        get_qr_value = dict(get_qr_json).get('value')
-        if len(get_qr_value) > 0:
-            get_qr_dict = json.loads(get_qr_value)
-            doc_content = DocumentContent(doc_qr_code,
-                                          get_qr_dict['name'],
-                                          get_qr_dict['id'])
-            db_main.session.add(doc_content)
-            db_main.session.commit()
-        else:
-            error_message = f'Requested QR: {doc_qr_code} not founded in Directum'
+    try:
+        response_directum_get_qr = requests.get(get_doc_by_qr_uri + f"(docQR='{doc_qr_code}')", headers=directum_headers)
+        print(get_doc_by_qr_uri + f"(docQR='{doc_qr_code}')")
+        if response_directum_get_qr.status_code == 200:
+            get_qr_json = response_directum_get_qr.json()
+            get_qr_value = dict(get_qr_json).get('value')
+            if len(get_qr_value) > 2:
+                get_qr_dict = json.loads(get_qr_value)
+                doc_content = DocumentContent(doc_qr_code,
+                                              get_qr_dict['name'],
+                                              get_qr_dict['id'])
+                db_main.session.add(doc_content)
+                db_main.session.commit()
+            else:
+                error_message = f'Requested QR: {doc_qr_code} not founded in Directum'
+                logger_output(error_message, DEBUG, 'error')
+                abort(404, error_message)
+        elif response_directum_get_qr.status_code == 404:
+            error_message = f'Error 404 processing request to API URL: {get_doc_by_qr_uri}(docQR="{doc_qr_code}")'
             logger_output(error_message, DEBUG, 'error')
             abort(404, error_message)
-    elif response_directum_get_qr.status_code == 404:
-        error_message = f'Error 404 processing request to API URL: {get_doc_by_qr_uri}(docQR="{doc_qr_code}")'
-        logger_output(error_message, DEBUG, 'error')
-        abort(404, error_message)
-    else:
-        error_message = f'GET to /GetDocByQR error code: {response_directum_get_qr.status_code}'
-        logger_output(error_message, DEBUG, 'error')
-        abort(400, error_message)
-    payload_directum = {'docQR': f'{doc_qr_code}',
-                        'userFIO': f'{user_name}',
-                        'docOperationCode': operation_id}
-    response_directum_set_doc_operation = requests.post(post_doc_paper_operation,
-                                                        data=json.dumps(payload_directum),
-                                                        headers=directum_headers)
-    if response_directum_set_doc_operation.status_code != 204:
-        error_message = f'POST to /SetDocPaperOperation error code: {response_directum_set_doc_operation.status_code} {response_directum_set_doc_operation.text}'
-        logger_output(error_message, DEBUG, 'error')
-        abort(400, error_message)
+        else:
+            error_message = f'GET to /GetDocByQR error code: {response_directum_get_qr.status_code}'
+            logger_output(error_message, DEBUG, 'error')
+            abort(400, error_message)
+        payload_directum = {'docQR': f'{doc_qr_code}',
+                            'userFIO': f'{user_name}',
+                            'docOperationCode': operation_id}
+        response_directum_set_doc_operation = requests.post(post_doc_paper_operation,
+                                                            data=json.dumps(payload_directum),
+                                                            headers=directum_headers)
+        if response_directum_set_doc_operation.status_code != 204:
+            error_message = f'POST to /SetDocPaperOperation error code: {response_directum_set_doc_operation.status_code} {response_directum_set_doc_operation.text}'
+            logger_output(error_message, DEBUG, 'error')
+            abort(400, error_message)
+    except Exception as err:
+        logger_output(str(err), DEBUG, 'error')
+        abort(500, str(err))
 
 
 @docs_handler.route('/docs/send/processing', methods=['POST'])
