@@ -13,7 +13,7 @@ from flask import render_template, redirect, url_for, request, Blueprint, abort
 from flask_login import current_user
 import requests
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 
 docs_handler = Blueprint('docs', __name__)
 
@@ -153,17 +153,16 @@ def docs_search_action():
         user_name = current_user.name
         page = request.args.get('page', type=int, default=1)
         search_string = request.args.get('search_string')
-        start_date = request.args.get('start_date', '2010-01-01')
-        end_date = request.args.get('end_date', '2099-12-31')
-        start_date = start_date if start_date != '' else '2020-01-01'
+        current_year = datetime.now().year
+        start_date = request.args.get('start_date', f'{current_year}-01-01')
+        end_date = request.args.get('end_date', f'{current_year}-12-31')
+        start_date = start_date if start_date != '' else f'{current_year}-01-01'
         if end_date != '' and not end_date.endswith('23:59:59'):
             end_date = end_date + ' 23:59:59'
         elif end_date != '' and end_date.endswith('23:59:59'):
             pass
         else:
-            end_date = '2099-12-31'
-        # next_day = datetime.strptime(end_date, '%Y-%m-%d') + timedelta(days=1)
-        # end_date = next_day.strftime('%Y-%m-%d')
+            end_date = f'{current_year}-12-31'
         doc_directum_paper_ids = db_main.session.query(User.name,
                                              DocumentStatus.operation,
                                              DocumentStatus.created,
