@@ -210,6 +210,8 @@ def docs_search_action():
                                                                                                                                                                                                               DocumentContent.directum_id,
                                                                                                                                                                                                               DocumentContent.directum_name)
         doc_directum_ids = doc_directum_ids if doc_directum_ids.count() > 0 else None
+        if end_date.endswith('23:59:59'):
+            end_date = end_date.replace(' 23:59:59', '')
         return render_template('index.html',
                                user_name=user_name,
                                doc_directum_paper_ids=doc_directum_paper_ids,
